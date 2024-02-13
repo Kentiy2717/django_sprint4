@@ -150,3 +150,7 @@ media/
 
 sent_emails/
 
+build_tests/
+yap_testing
+html/img/img/
+**/static_dev/
