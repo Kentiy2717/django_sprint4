@@ -47,7 +47,7 @@ class CategoryPostListView(ListView):
     paginate_by = MAX_NUMBERS_POSTS_ON_PAGE
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs) 
+        context = super().get_context_data(**kwargs)
         category = get_object_or_404(Category,
                                      slug=self.kwargs['category_slug'],
                                      is_published=True)

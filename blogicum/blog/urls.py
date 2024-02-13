@@ -1,5 +1,3 @@
-from django.conf import settings
-from django.conf.urls.static import static
 from django.urls import path
 
 from . import views
@@ -27,7 +25,8 @@ urlpatterns = [
     path('posts/<int:post_id>/delete_comment/<int:comment_id>/',
          views.DeleteCommentDeleteView.as_view(),
          name='delete_comment'),
-    path('category/<slug:category_slug>/', views.CategoryPostListView.as_view(),
+    path('category/<slug:category_slug>/',
+         views.CategoryPostListView.as_view(),
          name='category_posts'),
     path('profile/<slug:username>/', views.ProfileListView.as_view(),
          name='profile'),
