@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.db import models
 
 from blog.constans import MAX_LENGHT_FIELDS, MAX_LENGHT_FIELDS_STR_IN_MODELS
-from core.models import IsPublishedCreatedAt
+from core.models import IsPublishedCreatedAt, CreatedAt
 
 
 User = get_user_model()
@@ -98,29 +98,24 @@ class Post(IsPublishedCreatedAt):
     def __str__(self):
         return self.title[:MAX_LENGHT_FIELDS_STR_IN_MODELS]
 
-    @property
-    def comment_count(self):
-        return self.comments.count()
 
-
-class Comment(models.Model):
+class Comment(CreatedAt):
     text = models.TextField('Комментарий')
     post = models.ForeignKey(
         Post,
         on_delete=models.CASCADE,
         related_name='comments',
-        null=True,
+        verbose_name='Публикация',
     )
-    created_at = models.DateTimeField(auto_now_add=True)
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        null=True,
+        verbose_name='Автор',
     )
 
-    class Meta:
-        ordering = ('created_at',)
+    class Meta(CreatedAt.Meta):
+        verbose_name = 'комментарий'
+        verbose_name_plural = 'Комментарии'
 
-    @property
-    def comment_count(self):
-        return self.post.count()
+    def __str__(self):
+        return self.text[:MAX_LENGHT_FIELDS_STR_IN_MODELS]

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Category, Location, Post
+from .models import Category, Location, Post, Comment
 
 
 class CategoryInline(admin.TabularInline):
@@ -56,6 +56,7 @@ class PostAdmin(admin.ModelAdmin):
         'location',
         'category',
         'created_at',
+        'image',
     )
     list_editable = (
         'is_published',
@@ -67,3 +68,19 @@ class PostAdmin(admin.ModelAdmin):
     search_fields = ('title',)
     list_filter = ('is_published', 'pub_date',)
     list_display_links = ('title',)
+
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = (
+        'post',
+        'text',
+        'author',
+        'created_at',
+    )
+    list_editable = (
+        'text',
+    )
+    search_fields = ('post',)
+    list_filter = ('created_at',)
+    list_display_links = ('post',)

@@ -7,6 +7,8 @@ SECRET_KEY = 'django-insecure-s$4j6)#qx3e-!7nrqf&w91b(!1o^*^mfjx#avt278e2wm9%aa8
 DEBUG = True
 
 ALLOWED_HOSTS = [
+    'www.Kentiy2717.pythonanywhere.com',
+    'Kentiy2717.pythonanywhere.com',
     'localhost',
     '127.0.0.1',
 ]
@@ -15,6 +17,7 @@ INSTALLED_APPS = [
     'blog.apps.BlogConfig',
     'pages.apps.PagesConfig',
     'core.apps.CoreConfig',
+    'registration.apps.RegistrationConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
