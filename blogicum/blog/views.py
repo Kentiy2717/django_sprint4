@@ -1,4 +1,4 @@
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 from django.urls import reverse
@@ -6,17 +6,8 @@ from django.urls import reverse
 from blog.constans import MAX_NUMBERS_POSTS_ON_PAGE
 from blog.forms import ProfileForm, CommentForm, PostForm
 from blog.models import Category, Post, User
-from blog.utils import (CommentMixin,
-                        CommentUrlKwargMixin,
-                        comment_count,
-                        filtrate_posts,
-                        PostMixin,)
-
-
-class OnlyAuthorMixin(UserPassesTestMixin):
-
-    def test_func(self):
-        return self.get_object().author == self.request.user
+from blog.mixins import CommentMixin, CommentUrlKwargMixin, PostMixin
+from blog.services import comment_count, filtrate_posts
 
 
 class IndexListView(ListView):
@@ -32,20 +23,19 @@ class CategoryPostListView(ListView):
     ordering = 'title'
     paginate_by = MAX_NUMBERS_POSTS_ON_PAGE
 
+    def get_category(self):
+        return get_object_or_404(Category,
+                                 slug=self.kwargs['category_slug'],
+                                 is_published=True)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        category = get_object_or_404(Category,
-                                     slug=self.kwargs['category_slug'],
-                                     is_published=True)
-        context['category'] = category
+        context['category'] = self.get_category()
         return context
 
     def get_queryset(self, *args, **kwargs):
         queryset = super().get_queryset(*args, **kwargs)
-        category = get_object_or_404(Category,
-                                     slug=self.kwargs['category_slug'],
-                                     is_published=True)
-        post_list = comment_count(filtrate_posts(category.posts))
+        post_list = comment_count(filtrate_posts(self.get_category().posts))
         queryset = post_list
         return queryset
 
@@ -61,11 +51,11 @@ class PostDetailView(ListView):
 
     def get_object(self):
         obj = get_object_or_404(Post.objects,
-                                pk=self.kwargs['post_id'],)
+                                pk=self.kwargs[self.pk_url_kwarg],)
         if obj.author == self.request.user:
             return obj
         return get_object_or_404(filtrate_posts(Post.objects),
-                                 pk=self.kwargs['post_id'],)
+                                 pk=self.kwargs[self.pk_url_kwarg],)
 
     def get_context_data(self, **kwargs):
         self.context_object_name = 'post'
@@ -115,8 +105,7 @@ class ProfileListView(ListView):
     def get_queryset(self, *args, **kwargs):
         queryset = super().get_queryset(*args, **kwargs)
         author = self.get_profile()
-        post_list = comment_count(author.posts)
-        queryset = post_list
+        queryset = comment_count(author.posts)
         if author != self.request.user:
             return filtrate_posts(queryset)
         return queryset
