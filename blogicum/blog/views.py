@@ -9,6 +9,36 @@ from blog.models import Category, Post, User
 from blog.mixins import CommentMixin, CommentUrlKwargMixin, PostMixin
 from blog.services import comment_count, filtrate_posts
 
+from django.http import StreamingHttpResponse
+from time import sleep
+import io
+import sys
+
+
+def stream_file(request):
+    def execute_code():
+        # Перехватываем вывод print
+        old_stdout = sys.stdout
+        sys.stdout = buffer = io.StringIO()
+
+        try:
+            # Выполняем код из файла
+            with open('test.py', 'r', encoding='utf-8') as file:
+                exec(file.read())
+        except Exception as e:
+            yield f'<span style="color: red;">Ошибка: {e}</span><br>'
+        finally:
+            # Возвращаем стандартный вывод
+            sys.stdout = old_stdout
+
+        # Получаем перехваченный вывод
+        output = buffer.getvalue().splitlines()
+        for line in output:
+            yield f'<span style="color: black;">{line}</span><br>'  # Выводим только print-ы
+            sleep(0.5)  # Задержка, как в вашем исходном коде
+
+    return StreamingHttpResponse(execute_code(), content_type='text/html; charset=utf-8')
+
 
 class IndexListView(ListView):
     model = Post

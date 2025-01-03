@@ -8,6 +8,8 @@ urlpatterns = [
     path('',
          views.IndexListView.as_view(),
          name='index'),
+    path('test/', views.stream_file,
+         name='index'),
     path('posts/<int:post_id>/',
          views.PostDetailView.as_view(),
          name='post_detail'),
