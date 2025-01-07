@@ -1,3 +1,4 @@
+from functools import wraps
 from django.http import StreamingHttpResponse
 from termcolor import cprint
 
@@ -26,7 +27,8 @@ def print_title(message):
     write_to_file_num(count_test)
     count_test += 1
     write_to_file(message)
-    return f'<span style="color: yellow;">{message}</span><br>'
+    return (f'<span style="color: grey;">{count_test}) </span>'
+            f'<span style="color: yellow;">{message}</span><br>')
 
 def print_failed_test(message):
     print('')
@@ -34,16 +36,29 @@ def print_failed_test(message):
     print('')
     write_to_file(message)
 
+def capture_output(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        result = func(*args, **kwargs)
+        return result
+    return wrapper
 
+
+@capture_output
 def print_error(message):
     cprint(message, color='red')
     write_to_file(message)
+    # print(f'<span style="color: red;">{message}</span><br>')
     return f'<span style="color: red;">{message}</span><br>'
 
+
+@capture_output
 def print_passed(message):
     cprint(message, color='green')
     write_to_file(message)
+    # print(f'<span style="color: green;">{message}</span><br>')
     return f'<span style="color: green;">{message}</span><br>'
+
 
 def print_text_grey(message):
     if DETAIL_REPORT_ON is True:
@@ -60,11 +75,11 @@ def print_text_white(message):
     cprint(message, color='white')
     write_to_file(message)
 
-from time import sleep
-
-
-print_title('Здравствуйте!')
-for i in range(10, 20):
-    print_error(f'Приветствую тебя пользователь {i}')
-    sleep(0.5)
-print_passed('Поздаровались!')
+# from time import sleep
+# 
+# 
+# print_title('Здравствуйте!')
+# for i in range(10, 20):
+#     print_error(f'Приветствую тебя пользователь {i}')
+#     sleep(0.5)
+# print_passed('Поздаровались!')

@@ -13,41 +13,43 @@ from django.http import StreamingHttpResponse
 from time import sleep
 import io
 import sys
-from blog.test import print_error, print_passed, print_title
+from .test import print_error, print_passed, print_title
 
 
 def stream_file(request):
     def execute_code():
-        # Перехватываем вывод print
-        # old_stdout = sys.stdout
-        # sys.stdout = buffer = io.StringIO()
-
-        # try:
-        #     # Выполняем код из файла
-        #     with open('D:\\\Dev\\django_sprint4\\blogicum\\blog\\test.py', 'r', encoding='utf-8') as file:
-        #         exec(file.read())
-        # except Exception as e:
-        #     yield f'<span style="color: red;">Ошибка: {e}</span><br>'
-        # finally:
-        #     # Возвращаем стандартный вывод
-        #     # sys.stdout = old_stdout
-        #     pass
-
-        from time import sleep
-
-
         yield print_title('Здравствуйте!')
         for i in range(10, 20):
             yield print_error(f'Приветствую тебя пользователь {i}')
             sleep(0.5)
         yield print_passed('Поздаровались!')
 
-        # Получаем перехваченный вывод
-        # output = buffer.getvalue().splitlines()
-        # for line in output:
-        #     yield f'<span style="color: black;">{line}</span><br>'  # Выводим только print-ы
-        #     sleep(0.5)  # Задержка, как в вашем исходном коде
-    # return execute_code()
+    def generate_responses():
+        # Временная замена вспомогательных функций
+        original_print_error = print_error
+        original_print_passed = print_passed
+
+        def intercepted_print_error(message):
+            result = original_print_error(message)
+            yield result  # Возвращаем HTML-строку
+
+        def intercepted_print_passed(message):
+            result = original_print_passed(message)
+            yield result  # Возвращаем HTML-строку
+
+        # Временно заменяем функции
+        import test
+        import sys
+        sys.modules['test'].print_error = intercepted_print_error
+        sys.modules['test'].print_passed = intercepted_print_passed
+
+        # Выполняем execute_code()
+        execute_code()
+
+        # Восстанавливаем оригинальные функции
+        sys.modules['test'].print_error = original_print_error
+        sys.modules['test'].print_passed = original_print_passed
+        yield ""
     return StreamingHttpResponse(execute_code(), content_type='text/html; charset=utf-8')
 
 
