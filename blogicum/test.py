@@ -1,6 +1,7 @@
+from django.http import StreamingHttpResponse
 from termcolor import cprint
 
-from blogicum.blog.views import stream_file
+# from blogicum.blog.views import stream_file
 
 count_test = 1
 
@@ -25,6 +26,8 @@ def print_title(message):
     write_to_file_num(count_test)
     count_test += 1
     write_to_file(message)
+    message = f'<span style="color: yellow;">{message}</span><br>'
+    return StreamingHttpResponse(message, content_type='text/html; charset=utf-8')
 
 
 def print_failed_test(message):
@@ -37,11 +40,15 @@ def print_failed_test(message):
 def print_error(message):
     cprint(message, color='red')
     write_to_file(message)
+    message = f'<span style="color: red;">{message}</span><br>'
+    return StreamingHttpResponse(message, content_type='text/html; charset=utf-8')
 
 
 def print_passed(message):
     cprint(message, color='green')
     write_to_file(message)
+    message = f'<span style="color: green;">{message}</span><br>'
+    return StreamingHttpResponse(message, content_type='text/html; charset=utf-8')
 
 
 def print_text_grey(message):
@@ -65,5 +72,5 @@ from time import sleep
 print_title('Здравствуйте!')
 for i in range(10, 20):
     print_error(f'Приветствую тебя пользователь {i}')
-    # sleep(1)
+    sleep(0.5)
 print_passed('Поздаровались!')
